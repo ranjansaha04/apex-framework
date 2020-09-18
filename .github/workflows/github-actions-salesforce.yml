@@ -1,0 +1,31 @@
+#.github/workflows/main.yml
+name: CI
+on: [push]
+jobs:
+  build:
+    
+    runs-on: windows-latest
+    steps:
+      - name: scm checkout
+        id: checkout
+        uses: actions/checkout@v2
+        
+      - name: Install Salesforce CLI
+        run: |
+          npm install sfdx-cli
+          
+      - name: Authenticate Org
+        run: |
+           echo "${{secrets.SF_JWT_SERVER_KEY}}" > server.key
+           node_modules/sfdx-cli/bin/run force:auth:jwt:grant --clientid ${{secrets.SF_CONSUMER_KEY}} --jwtkeyfile server.key --username ${{secrets.SF_USERNAME}} --setdefaultusername
+           
+      - name: Validate MetaData
+        run: |
+           node_modules/sfdx-cli/bin/run force:source:deploy --checkonly --sourcepath "force-app/main/default" --targetusername ${{secrets.SF_USERNAME}}
+           
+      - name: Deploy MetaData
+        run: |
+           node_modules/sfdx-cli/bin/run force:source:deploy --sourcepath "force-app/main/default" --targetusername ${{secrets.SF_USERNAME}}
+        
+          
+        
