@@ -1,6 +1,6 @@
 public class TriggerDispatcher {
 
-    public static void handleTrigger(SobjectType sObjectName){
+    public static void dispatch(SobjectType sObjectName){
         List<SObjectTriggerHandler__mdt> handlersList = [SELECT TriggerHandlerClass__c FROM SObjectTriggerHandler__mdt WHERE SobjectType__c=: sObjectName.getDescribe().getName() ];
         for(SObjectTriggerHandler__mdt mdt : handlersList){
             execute((ITriggerHandler)Type.forName(mdt.TriggerHandlerClass__c));
